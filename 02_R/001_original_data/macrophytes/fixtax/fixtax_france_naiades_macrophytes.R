@@ -1,0 +1,77 @@
+# fixtax France Naiades Macropyhtes 
+
+taxontable <- update_taxonomy_macrophytes(TU, taxontable)
+
+taxontable[clean == FALSE]
+
+taxontable[taxon_state == "", sort(unique(original_name))]
+taxontable[original_name == "Schizothrix", c("family", "order", "subclass", "class", "phylum", "kingdom") := 
+                   .("Schizotrichaceae", "Synechococcales", NA, "Cyanophyceae", "Cyanobacteria", "Bacteria")]
+taxontable[original_name == "Collema", c("family", "order", "subclass", "class", "phylum", "kingdom") := 
+                   .("Collemataceae", "Peltigerales", NA, "Lecanoromycetes", "Ascomycota", "Fungi")]
+
+
+taxontable[original_name == "Alchemilla"      , taxon_state := "drop"]
+taxontable[original_name == "Alisma"          , taxon_state := "helophytes"]
+taxontable[original_name == "Amaranthus"      , taxon_state := "drop"]
+taxontable[original_name == "Apiaceae"        , taxon_state := "drop"]
+taxontable[original_name == "Apium"           , taxon_state := "drop"]
+taxontable[original_name == "Artemisia"       , taxon_state := "drop"]
+taxontable[original_name == "Arum"            , taxon_state := "drop"]
+taxontable[original_name == "Aster"           , taxon_state := "drop"]
+taxontable[original_name == "Brassicaceae"    , taxon_state := "drop"]
+taxontable[original_name == "Bromus"          , taxon_state := "drop"]
+taxontable[original_name == "Calystegia"      , taxon_state := "drop"]
+taxontable[original_name == "Carex cuprina"   , taxon_state := "helophytes"]
+taxontable[original_name == "Centaurea"       , taxon_state := "drop"]
+taxontable[original_name == "Chenopodium"     , taxon_state := "drop"]
+taxontable[original_name == "Cirsium"         , taxon_state := "drop"]
+taxontable[original_name == "Conyza"          , taxon_state := "drop"]
+taxontable[original_name == "Cyperaceae"      , taxon_state := "drop"]
+taxontable[original_name == "Cyperus"         , taxon_state := "drop"]
+taxontable[original_name == "Dipsacus"        , taxon_state := "drop"]
+taxontable[original_name == "Echinochloa"     , taxon_state := "drop"]
+taxontable[original_name == "Eleocharis"      , taxon_state := "helophytes"]
+taxontable[original_name == "Eragrostis"      , taxon_state := "drop"]
+taxontable[original_name == "Euphrasia"       , taxon_state := "drop"]
+taxontable[original_name == "Festuca"         , taxon_state := "drop"]
+taxontable[original_name == "Fragaria"        , taxon_state := "drop"]
+taxontable[original_name == "Helianthus"      , taxon_state := "drop"]
+taxontable[original_name == "Hieracium"       , taxon_state := "drop"]
+taxontable[original_name == "Hypericum"       , taxon_state := "drop"]
+taxontable[original_name == "Impatiens"       , taxon_state := "drop"]
+taxontable[original_name == "Lemna"           , taxon_state := "hydrophytes"]
+taxontable[original_name == "Lonicera"        , taxon_state := "drop"]
+taxontable[original_name == "Lotus"           , taxon_state := "drop"]
+taxontable[original_name == "Ludwigia"        , taxon_state := "helophytes"]
+taxontable[original_name == "Lythrum"         , taxon_state := "drop"]
+taxontable[original_name == "Malva"           , taxon_state := "drop"]
+taxontable[original_name == "Molinia"         , taxon_state := "drop"]
+taxontable[original_name == "Oenanthe"        , taxon_state := "drop"]
+taxontable[original_name == "Panicum"         , taxon_state := "drop"]
+taxontable[original_name == "Parnassia"       , taxon_state := "drop"]
+taxontable[original_name == "Paspalum"        , taxon_state := "drop"]
+taxontable[original_name == "Pedicularis"     , taxon_state := "drop"]
+taxontable[original_name == "Petasites"       , taxon_state := "drop"]
+taxontable[original_name == "Potentilla"      , taxon_state := "drop"]
+taxontable[original_name == "Rorippa"         , taxon_state := "hydrophytes"]
+taxontable[original_name == "Rubus"           , taxon_state := "drop"]
+taxontable[original_name == "Sagina"          , taxon_state := "drop"]
+taxontable[original_name == "Saxifraga"       , taxon_state := "drop"]
+taxontable[original_name == "Scirpus"         , taxon_state := "drop"]
+taxontable[original_name == "Scrophularia"    , taxon_state := "drop"]
+taxontable[original_name == "Senecio"         , taxon_state := "drop"]
+taxontable[original_name == "Setaria"         , taxon_state := "drop"]
+taxontable[original_name == "Solanum"         , taxon_state := "drop"]
+taxontable[original_name == "Solidago"        , taxon_state := "drop"]
+taxontable[original_name == "Stachys"         , taxon_state := "drop"]
+taxontable[original_name == "Symphyotrichum"  , taxon_state := "drop"]
+taxontable[original_name == "Trifolium"       , taxon_state := "drop"]
+taxontable[original_name == "Typha"           , taxon_state := "helophytes"]
+taxontable[original_name == "Utricularia"     , taxon_state := "helophytes"]
+taxontable[original_name == "Xanthium"   , taxon_state := "drop"]
+
+saveRDS(taxontable, paste0("data/macrophytes/",Sys.Date(),"_taxontable_macrophytes.rds"))
+
+
+select(taxontable, original_name, genus, taxon_state) |> View()
