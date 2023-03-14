@@ -57,24 +57,23 @@ macrophytes <- readRDS("01_data/003_macrophytes/002_combined_data/03_no_rare_tax
 # prepare data ----------------------------------------------------------------------
 
 # - drop non-taxa columns
-diat.bio <- lapply(diatoms    , function(x) x[, -c(1:10)])
-fish.bio <- lapply(fishes     , function(x) x[, -c(1:10)])
-macr.bio <- lapply(macrophytes, function(x) x[, -c(1:10)])
+diat.bio <- diatoms[, -c(1:10)]
+fish.bio <- fishes[, -c(1:10)]
+macr.bio <- macrophytes[, -c(1:10)]
 
-diat.bio <- lapply(diat.bio, function(x) if ("NA" %in% names(x)){x[, NA := NULL]}else{x})
-fish.bio <- lapply(fish.bio, function(x) if ("NA" %in% names(x)){x[, NA := NULL]}else{x})
-macr.bio <- lapply(macr.bio, function(x) if ("NA" %in% names(x)){x[, "NA" := NULL]}else{x})
+diat.bio <- if ("NA" %in% names(diat.bio)){diat.bio[, NA := NULL]} else {diat.bio}
+fish.bio <- if ("NA" %in% names(fish.bio)){fish.bio[, NA := NULL]} else {fish.bio}
+macr.bio <- if ("NA" %in% names(macr.bio)){macr.bio[, NA := NULL]} else {macr.bio}
 
 # - turn into matrix - necessary to compute distance table
-diat.bio %<>% lapply(as.matrix)
-fish.bio %<>% lapply(as.matrix)
-macr.bio %<>% lapply(as.matrix)
+diat.bio %<>% as.matrix
+fish.bio %<>% as.matrix
+macr.bio %<>% as.matrix
 
-
-# - create jaccard distance tables
-diat.dist <- lapply(diat.bio, parallelDist, method = "binary")
-fish.dist <- lapply(fish.bio, parallelDist, method = "binary")
-macr.dist <- lapply(macr.bio, parallelDist, method = "binary")
+# - create Jaccard distance tables
+diat.dist <- parallelDist(diat.bio, method = "binary")
+fish.dist <- parallelDist(fish.bio, method = "binary")
+macr.dist <- parallelDist(macr.bio, method = "binary")
 
 # ——— compute classification strengths ——— # 
 
@@ -84,28 +83,32 @@ taxon_list      <- list(diatoms, fishes, macrophytes)
 results_list    <- list()
 
 # - loop over taxa
-for (i in 1:3){
+for (i in 1:3) {
         print(paste("i = ", i))
-        
-        # - loop over taxonomic resolutions 
-        for(j in 1:3) {
-                print(paste("  j = ", j))
-                
-                # - loop over typology systems
-                for (k in 1:9){
-                        print(paste("    k = ", k))
-                        k.res <- compute_cs(
-                                dist = distance_list[[i]][[j]],
-                                grouping = taxon_list[[i]][[j]][[1 + k]], 
-                                typology = c("brt", "ife", "bgr", "few", "enz", "null_model1_type", "null_model2_type", "null_model3_type", "null_model4_type")[k]
-                        )
-                        k.res$resolution <- c("species", "genus", "family", "order")[j]  
-                        k.res$taxon      <- c("diatom", "fish", "macrophytes")[i]  
-                        results_list[[length(results_list) + 1 ]]  <-   k.res
-                        rm(k.res)
-                }
+        # - loop over typology systems
+        for (k in 1:9) {
+                print(paste("    k = ", k))
+                k.res <- compute_cs(
+                        dist = distance_list[[i]],
+                        grouping = taxon_list[[i]][[1 + k]],
+                        typology = c(
+                                "brt",
+                                "ife",
+                                "bgr",
+                                "few",
+                                "enz",
+                                "null_model1_type",
+                                "null_model2_type",
+                                "null_model3_type",
+                                "null_model4_type"
+                        )[k]
+                )
+                k.res$taxon      <-
+                        c("diatom", "fish", "macrophytes")[i]
+                results_list[[length(results_list) + 1]]  <-
+                        k.res
+                rm(k.res)
         }
-        
 }
 
 res <- rbindlist(results_list)

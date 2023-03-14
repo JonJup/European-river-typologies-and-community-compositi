@@ -9,22 +9,20 @@
 # Notes: 
 # -------------------------------
 
-anosim.brt <- lapply(data, function(x) anosim(x[,-c(1:10)], distance = "jaccard", grouping = x$brt, parallel = 7))
-anosim.ife <- lapply(data, function(x) anosim(x[,-c(1:10)], distance = "jaccard", grouping = x$ife, parallel = 7))
-anosim.bgr <- lapply(data, function(x) anosim(x[,-c(1:10)], distance = "jaccard", grouping = x$bgr, parallel = 7))
-anosim.few <- lapply(data, function(x) anosim(x[,-c(1:10)], distance = "jaccard", grouping = x$few, parallel = 7))
-anosim.enz <- lapply(data, function(x) anosim(x[,-c(1:10)], distance = "jaccard", grouping = x$enz, parallel = 7))
+anosim.brt <- anosim(data[,-c(1:10)], distance = "jaccard", grouping = data$brt, parallel = 7)
+anosim.ife <- anosim(data[,-c(1:10)], distance = "jaccard", grouping = data$ife, parallel = 7)
+anosim.bgr <- anosim(data[,-c(1:10)], distance = "jaccard", grouping = data$bgr, parallel = 7)
+anosim.few <- anosim(data[,-c(1:10)], distance = "jaccard", grouping = data$few, parallel = 7)
+anosim.enz <- anosim(data[,-c(1:10)], distance = "jaccard", grouping = data$enz, parallel = 7)
 
 anosim_fun1 <- function(x, typology){
-        y <- purrr::transpose(x)
         z <- data.table(
-                statistic = unlist(y$statistic),
-                p.value   = unlist(y$signif),
-                taxonomic.resolution = c("species", "genus", "family", "order"),
+                statistic = x$statistic,
+                p.value   = x$signif,
                 typology = typology,
                 taxon = taxon
         )
-        z
+        return(z)
 }
 
 anosim_result <- 

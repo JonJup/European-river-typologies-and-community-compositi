@@ -1,3 +1,6 @@
+## the file all_typologies.rds or all_typologies.gpkg which are used in this call are created in the R script: 
+## 901_misc/002_combine_all_typologies.R
+
 add_typologies <- function(data){
 
         sites <-

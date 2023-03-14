@@ -11,7 +11,7 @@ library(vegan)
 library(dplyr)
 library(DoE.base)
 
-data <- readRDS("01_data/001_diatoms/002_combined_data/01_combined_data_aggregated.rds")
+data <- readRDS("01_data/001_diatoms/002_combined_data/03_no_rare_taxa.rds")
 taxon <- "diatoms"
 source("02_R/900_functions/typical.R")
 res_lst2

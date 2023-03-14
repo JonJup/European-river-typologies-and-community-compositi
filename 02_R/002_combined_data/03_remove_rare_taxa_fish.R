@@ -8,18 +8,13 @@ library(pacman)
 p_load(data.table, dplyr, tidyr)
 
 # load data -------------------------------------------
-data <- readRDS("01_data/002_fish/002_combined_data/02_2022-12-12_w_null_model.rds")
+data <- readRDS("01_data/002_fish/002_combined_data/02_w_null_model.rds")
 
 # prepare data ----------------------------------------
 data <- rename(data, brt = brt12)
 
 # - get one row per sample 
 sites <- unique(data, by = "gr_sample_id")
-
-table.sites <- table(sites$year)
-sum(table.sites[c(25:31)]) / sum(table.sites)
-
-length(table.sites)
 
 # - count samples within each type of each typology 
 table.lst <- list(
@@ -64,97 +59,39 @@ while (any(unlist(table.lst)<20)){
         
 }
 
-data[, uniqueN(gr_sample_id), by = "data.set"]
-
 # - add a "presence" variable that is always 1. Zeros will be automatically added in the
 # - next step (pivot_wider).
-
 data[, presence := 1]
+data %<>%
+        unique(by = c("species", "gr_sample_id")) %>%
+        select(!geometry) %>%
+        pivot_wider(
+                id_cols = c(
+                        "gr_sample_id",
+                        "brt",
+                        "ife",
+                        "bgr",
+                        "few",
+                        "enz",
+                        "null_model1_type",
+                        "null_model2_type",
+                        "null_model3_type",
+                        "null_model4_type"
+                ),
+                names_from = "species",
+                values_from = "presence",
+                values_fill = 0
+        ) %>%
+        setDT %>%
+        {\(x) x[, "NA" := NULL]}()
 
-data$species |> uniqueN()
-data$genus |> uniqueN()
-data$family |> uniqueN()
-data$order |> uniqueN()
+occurrence_frequencies <- apply(data[,-c(1:10)],2,sum)
 
-data0 <- copy(data)
-data0[, richness := uniqueN(lowest.taxon), by = "gr_sample_id"]
-data0 <- unique(data0, by = "gr_sample_id")
-
-library(ggplot2)
-ggplot(data0, aes(x = brt, y = richness)) + 
-        geom_violin(,draw_quantiles = .5)  
-geom_point(alpha = 0.1)
-
-
-piv <- function(x) {
-        ub <- c(x, "gr_sample_id")
-        data |> 
-                unique(by=ub) |>
-                select(!geometry) |> 
-                pivot_wider(id_cols = c("gr_sample_id","year", "brt", "ife", "bgr", 
-                                        "few", "enz", "null_model1_type", 
-                                        "null_model2_type", "null_model3_type", 
-                                        "null_model4_type"), 
-                            names_from = x, 
-                            values_from = "presence", 
-                            values_fill = 0) -> 
-                out
-        return(out)        
-}
-
-
-## pivot wider to site X taxon format
-
-data.spe <- piv("species") |> setDT() |> {\(x) x[, "NA" := NULL]}()
-data.gen <- piv("genus")   |> setDT() |> {\(x) x[, "NA" := NULL]}()
-# - family and order currently have no entry with missing data thus the last step throws a warning
-data.fam <- piv("family")  |> setDT() |> {\(x) x[, "NA" := NULL]}()
-data.ord <- piv("order")   |> setDT() |> {\(x) x[, "NA" := NULL]}()
-
-data.ls <- list(data.spe, data.gen, data.fam, data.ord)
-
-# - what are the three most common species 
-data.spe |> select(-c(1:11)) |> apply(2,sum) |> sort(decreasing = T) |> {\(x) x[1:3]}()
-# - how many singletons 
-data.spe |> select(-c(1:11)) |> apply(2,sum) |> {\(x) x == 1}() |> sum()
-# - what is the mean number of occurrences? And the SD? 
-data.spe |> select(-c(1:11)) |> apply(2,sum) |> mean()
-data.spe |> select(-c(1:11)) |> apply(2,sum) |> sd()
-# - what is the mean species richness? And the SD? 
-data.spe |> select(-c(1:11)) |> apply(1,sum) |> mean()
-data.spe |> select(-c(1:11)) |> apply(1,sum) |> sd()
-
-occurrence_frequencies <- lapply(data.ls, function(x) apply(x[,-c(1:11)],2,sum))
-
-# - I wont use one percent of taxa since this biases against taxa from rare types. 
-# - Instead I remove singletons. 
-occurrence_threshold <- 1 #lapply(data.ls, function(x) round(0.01 * nrow(x)))
-
-data2 <- list()
-# - identify and remove rare taxa 
-for (i in seq_along(data.ls)){
-        i.rare      <- which(occurrence_frequencies[[i]] <= occurrence_threshold)
-        i.remove <- names(i.rare)
-        i.remove <- unique(i.remove)
-        data2[[i]] <- data.ls[[i]][, (i.remove) := NULL]
-        rm(list = ls()[grep(pattern = "^i\\.", x = ls())])
-}
-
-# analyze --------------------------------------------
-
-## Remaining number of taxa species
-data2[[1]] |> ncol() |> {\(x) x - 11}()
-## Remaining number of taxa genera
-data2[[2]] |> ncol() |> {\(x) x - 11}()
-## Remaining number of taxa families
-data2[[3]] |> ncol() |> {\(x) x - 11}()
-## Remaining number of taxa orders
-data2[[4]] |> ncol() |> {\(x) x - 10}()
-
-data2[[1]] <- data2[[1]][which(rowSums(data2[[1]][, -c(1:11)]) > 1), ]
-data2[[2]] <- data2[[2]][which(rowSums(data2[[1]][, -c(1:11)]) > 1), ]
-data2[[3]] <- data2[[3]][which(rowSums(data2[[1]][, -c(1:11)]) > 1), ]
-data2[[4]] <- data2[[4]][which(rowSums(data2[[1]][, -c(1:11)]) > 1), ]
+# - drop singletons
+singletons <- which(occurrence_frequencies <= 1) %>% 
+        names %>% 
+        unique
+data <- data[, (singletons) := NULL]
 
 # save data -------------------------------------------
-saveRDS(data2, file = paste0("01_data/002_fish/002_combined_data/03_no_rare_taxa.rds"))
+saveRDS(data, file = "01_data/002_fish/002_combined_data/03_no_rare_taxa.rds")

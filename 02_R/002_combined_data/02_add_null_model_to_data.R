@@ -11,13 +11,14 @@ library(pacman)
 p_load(conflicted, sf, data.table, dplyr, magrittr, mapview)
 
 # load data -------------------------------------------------------------------------
-diatom <- readRDS("data/diatoms/combined_data/01_2022-06-15_combined_data_aggregated.rds")
-macorp <- readRDS("data/macrophytes/combined_data/01_2022-12-12_combined_data_aggregated.rds")
-fishes <- readRDS("data/fish/combined_data/01_2022-06-15_combined_data_aggregated.rds")
-null.model1 <- readRDS("data/spatial_neutral/spatial_null_hl.rds")
-null.model2 <- readRDS("data/spatial_neutral/spatial_null_hs.rds")
-null.model3 <- readRDS("data/spatial_neutral/spatial_null_sl.rds")
-null.model4 <- readRDS("data/spatial_neutral/spatial_null_ss.rds")
+diatom <- readRDS("01_data/001_diatoms/combined_data/01_combined_data_aggregated.rds")
+fishes <- readRDS("01_data/002_fish/combined_data/01_combined_data_aggregated.rds")
+macorp <- readRDS("01_data/003_macrophytes/combined_data/01_combined_data_aggregated.rds")
+
+null.model1 <- readRDS("01_data/005_spatial_neutral/spatial_null_hl.rds")
+null.model2 <- readRDS("01_data/005_spatial_neutral/spatial_null_hs.rds")
+null.model3 <- readRDS("01_data/005_spatial_neutral/spatial_null_sl.rds")
+null.model4 <- readRDS("01_data/005_spatial_neutral/spatial_null_ss.rds")
 
 # prepare data ----------------------------------------------------------------------
 diatom.sites <- unique(diatom, by = "gr_sample_id") |> st_as_sf() |> select("gr_sample_id")
@@ -53,7 +54,8 @@ macorp2 <- macorp.sites[macorp, on = "gr_sample_id"]
 fishes2 <- fishes.sites[fishes, on = "gr_sample_id"]
 
 # save to file  ---------------------------------------------------------------------
-saveRDS(diatom2, paste0("data/diatoms/combined_data/02_",Sys.Date(),"_w_null_model.rds"))
-saveRDS(macorp2, paste0("data/macrophytes/combined_data/02_",Sys.Date(),"_w_null_model.rds"))
-saveRDS(fishes2, paste0("data/fish/combined_data/02_",Sys.Date(),"_w_null_model.rds"))
+saveRDS(diatom2, "01_data/001_diatoms/combined_data/02_w_null_model.rds")
+saveRDS(fishes2, "01_data/002_fish/combined_data/02_w_null_model.rds")
+saveRDS(macorp2, "01_data/003_macrophytes/combined_data/02_w_null_model.rds")
+
 
