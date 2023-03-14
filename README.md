@@ -23,3 +23,5 @@ This code in this repository is structered as follows:
 -> 002_combined_data (scripts to combine harmonized datasets and prepare them for further analyses.)    
 -> 003_analysis (scripts to conduct analyses.)    
 -> 900_functions (scirpts with functions that are repeadetly used in other scripts.)    
+
+Unfortunately, we are not able to make all the data publicly available. If your are interested in repeating our analyses or in conducting further analyses with these data please contact me under j.jupke@rptu.de or jonjup@protonmail.com.
